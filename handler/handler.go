@@ -6,7 +6,7 @@ import (
 )
 
 func Set(c *gin.Context) {
-    name := c.DefaultQuery("name", "jack")
+    name := c.DefaultQuery("nameaaa", "jack")
     c.String(200, fmt.Sprintf("hello %s\n", name))
 }
 
