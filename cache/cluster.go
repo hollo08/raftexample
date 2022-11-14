@@ -3,6 +3,8 @@ package cache
 import (
 	"errors"
 	"fmt"
+	"github.com/hashicorp/go-hclog"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -15,10 +17,12 @@ import (
 	raftboltdb "github.com/hashicorp/raft-boltdb"
 )
 
+var logWriter io.Writer
+
 type raftNodeInfo struct {
-	raft           *raft.Raft
+	Raft           *raft.Raft
 	fsm            *FSM
-	leaderNotifyCh chan bool
+	LeaderNotifyCh chan bool
 }
 
 func newRaftTransport(opts *options) (*raft.NetworkTransport, error) {
@@ -33,10 +37,15 @@ func newRaftTransport(opts *options) (*raft.NetworkTransport, error) {
 	return transport, nil
 }
 
-func newRaftNode(opts *options, ctx *stCachedContext) (*raftNodeInfo, error) {
+func NewRaftNode(opts *options, ctx *StCachedContext) (*raftNodeInfo, error) {
+	logger := hclog.New(&hclog.LoggerOptions{
+		Name:   "raft: ",
+		Output: logWriter,
+		Level:  hclog.DefaultLevel,
+	})
 	raftConfig := raft.DefaultConfig()
 	raftConfig.LocalID = raft.ServerID(opts.raftTCPAddress)
-	raftConfig.Logger = log.New(os.Stderr, "raft: ", log.Ldate|log.Ltime)
+	raftConfig.Logger = logger
 	raftConfig.SnapshotInterval = 20 * time.Second
 	raftConfig.SnapshotThreshold = 2
 	leaderNotifyCh := make(chan bool, 1)
@@ -87,12 +96,12 @@ func newRaftNode(opts *options, ctx *stCachedContext) (*raftNodeInfo, error) {
 		raftNode.BootstrapCluster(configuration)
 	}
 
-	return &raftNodeInfo{raft: raftNode, fsm: fsm, leaderNotifyCh: leaderNotifyCh}, nil
+	return &raftNodeInfo{Raft: raftNode, fsm: fsm, LeaderNotifyCh: leaderNotifyCh}, nil
 }
 
 // joinRaftCluster joins a node to raft cluster
-func joinRaftCluster(opts *options) error {
-	url := fmt.Sprintf("http://%s/join?peerAddress=%s", opts.joinAddress, opts.raftTCPAddress)
+func JoinRaftCluster(opts *options) error {
+	url := fmt.Sprintf("http://%s/join?peerAddress=%s", opts.JoinAddress, opts.raftTCPAddress)
 
 	resp, err := http.Get(url)
 	if err != nil {

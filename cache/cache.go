@@ -7,16 +7,17 @@ import (
 	"sync"
 )
 
-type stCached struct {
-	opts *options
-	log  *log.Logger
-	cm   *cacheManager
-	raft *RaftNodeInfo
+type StCached struct {
+	Opts *options
+	Log  *log.Logger
+	Cm   *cacheManager
+	Raft *raftNodeInfo
 }
 
-type stCachedContext struct {
-	st *stCached
+type StCachedContext struct {
+	St *StCached
 }
+
 type cacheManager struct {
 	data map[string]string
 	sync.RWMutex
@@ -59,6 +60,5 @@ func (c *cacheManager) UnMarshal(serialized io.ReadCloser) error {
 	c.Lock()
 	defer c.Unlock()
 	c.data = newData
-
 	return nil
 }
