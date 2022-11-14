@@ -9,7 +9,7 @@ import (
 )
 
 type FSM struct {
-	ctx *StCachedContext
+	ctx *RaftCachedContext
 	log *log.Logger
 }
 
@@ -24,17 +24,17 @@ func (f *FSM) Apply(logEntry *raft.Log) interface{} {
 	if err := json.Unmarshal(logEntry.Data, &e); err != nil {
 		panic("Failed unmarshaling Raft log entry. This is a bug.")
 	}
-	ret := f.ctx.St.Cm.Set(e.Key, e.Value)
+	ret := f.ctx.RCC.Cm.Set(e.Key, e.Value)
 	f.log.Printf("fms.Apply(), logEntry:%s, ret:%v\n", logEntry.Data, ret)
 	return ret
 }
 
 // Snapshot returns a latest snapshot
 func (f *FSM) Snapshot() (raft.FSMSnapshot, error) {
-	return &snapshot{cm: f.ctx.St.Cm}, nil
+	return &snapshot{cm: f.ctx.RCC.Cm}, nil
 }
 
 // Restore stores the key-value store to a previous state.
 func (f *FSM) Restore(serialized io.ReadCloser) error {
-	return f.ctx.St.Cm.UnMarshal(serialized)
+	return f.ctx.RCC.Cm.UnMarshal(serialized)
 }

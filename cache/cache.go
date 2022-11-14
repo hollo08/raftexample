@@ -7,36 +7,36 @@ import (
 	"sync"
 )
 
-type StCached struct {
+type RaftCached struct {
 	Opts *options
 	Log  *log.Logger
-	Cm   *cacheManager
+	Cm   *CacheManager
 	Raft *raftNodeInfo
 }
 
-type StCachedContext struct {
-	St *StCached
+type RaftCachedContext struct {
+	RCC *RaftCached
 }
 
-type cacheManager struct {
+type CacheManager struct {
 	data map[string]string
 	sync.RWMutex
 }
 
-func NewCacheManager() *cacheManager {
-	cm := &cacheManager{}
+func NewCacheManager() *CacheManager {
+	cm := &CacheManager{}
 	cm.data = make(map[string]string)
 	return cm
 }
 
-func (c *cacheManager) Get(key string) string {
+func (c *CacheManager) Get(key string) string {
 	c.RLock()
 	ret := c.data[key]
 	c.RUnlock()
 	return ret
 }
 
-func (c *cacheManager) Set(key string, value string) error {
+func (c *CacheManager) Set(key string, value string) error {
 	c.Lock()
 	defer c.Unlock()
 	c.data[key] = value
@@ -44,7 +44,7 @@ func (c *cacheManager) Set(key string, value string) error {
 }
 
 // Marshal serializes cache data
-func (c *cacheManager) Marshal() ([]byte, error) {
+func (c *CacheManager) Marshal() ([]byte, error) {
 	c.RLock()
 	defer c.RUnlock()
 	dataBytes, err := json.Marshal(c.data)
@@ -52,7 +52,7 @@ func (c *cacheManager) Marshal() ([]byte, error) {
 }
 
 // UnMarshal deserializes cache data
-func (c *cacheManager) UnMarshal(serialized io.ReadCloser) error {
+func (c *CacheManager) UnMarshal(serialized io.ReadCloser) error {
 	var newData map[string]string
 	if err := json.NewDecoder(serialized).Decode(&newData); err != nil {
 		return err

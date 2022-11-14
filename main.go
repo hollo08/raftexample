@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	st := &cache.StCached{
+	st := &cache.RaftCached{
 		Opts: cache.NewOptions(),
 		Log:  log.New(os.Stderr, "stCached: ", log.Ldate|log.Ltime),
 		Cm:   cache.NewCacheManager(),
 	}
-	ctx := &cache.StCachedContext{St: st}
+	ctx := &cache.RaftCachedContext{RCC: st}
 
 	raft, err := cache.NewRaftNode(st.Opts, ctx)
 	if err != nil {

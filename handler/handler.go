@@ -18,7 +18,7 @@ const (
 )
 
 type Handler struct {
-	Ctx         *cache.StCachedContext
+	Ctx         *cache.RaftCachedContext
 	Log         *log.Logger
 	Mux         *http.ServeMux
 	EnableWrite int32
@@ -43,7 +43,7 @@ func (h *Handler) Set(c *gin.Context) {
 		return
 	}
 
-	applyFuture := h.Ctx.St.Raft.Raft.Apply(eventBytes, 5*time.Second)
+	applyFuture := h.Ctx.RCC.Raft.Raft.Apply(eventBytes, 5*time.Second)
 	if err := applyFuture.Error(); err != nil {
 		h.Log.Printf("raft.Apply failed:%v", err)
 		fmt.Fprint(c.Writer, "internal error\n")
@@ -58,7 +58,7 @@ func (h *Handler) Get(c *gin.Context) {
 		c.String(200, fmt.Sprintf("fail"))
 		return
 	}
-	ret := h.Ctx.St.Cm.Get(key)
+	ret := h.Ctx.RCC.Cm.Get(key)
 	c.String(200, fmt.Sprintf("hello %s\n", ret))
 }
 
@@ -68,7 +68,7 @@ func (h *Handler) Join(c *gin.Context) {
 		c.String(200, fmt.Sprintf("fail"))
 		return
 	}
-	addPeerFuture := h.Ctx.St.Raft.Raft.AddVoter(raft.ServerID(node), raft.ServerAddress(node), 0, 0)
+	addPeerFuture := h.Ctx.RCC.Raft.Raft.AddVoter(raft.ServerID(node), raft.ServerAddress(node), 0, 0)
 	if err := addPeerFuture.Error(); err != nil {
 		h.Log.Printf("Error joining peer to raft, peeraddress:%s, err:%v, code:%d", node, err, http.StatusInternalServerError)
 		fmt.Fprint(c.Writer, "internal error\n")

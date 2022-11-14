@@ -37,7 +37,7 @@ func newRaftTransport(opts *options) (*raft.NetworkTransport, error) {
 	return transport, nil
 }
 
-func NewRaftNode(opts *options, ctx *StCachedContext) (*raftNodeInfo, error) {
+func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   "raft: ",
 		Output: logWriter,
