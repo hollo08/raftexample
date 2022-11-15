@@ -15,7 +15,7 @@ type RaftCached struct {
 }
 
 type RaftCachedContext struct {
-	RCC *RaftCached
+	RC *RaftCached
 }
 
 type CacheManager struct {

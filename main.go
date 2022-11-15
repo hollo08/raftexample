@@ -15,7 +15,7 @@ func main() {
 		Log:  log.New(os.Stderr, "stCached: ", log.Ldate|log.Ltime),
 		Cm:   cache.NewCacheManager(),
 	}
-	ctx := &cache.RaftCachedContext{RCC: st}
+	ctx := &cache.RaftCachedContext{RC: st}
 
 	raft, err := cache.NewRaftNode(st.Opts, ctx)
 	if err != nil {

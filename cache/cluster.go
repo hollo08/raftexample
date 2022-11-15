@@ -26,7 +26,7 @@ type raftNodeInfo struct {
 }
 
 func newRaftTransport(opts *options) (*raft.NetworkTransport, error) {
-	address, err := net.ResolveTCPAddr("tcp", opts.raftTCPAddress)
+	address, err := net.ResolveTCPAddr("tcp", opts.RaftTCPAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
 		Level:  hclog.DefaultLevel,
 	})
 	raftConfig := raft.DefaultConfig()
-	raftConfig.LocalID = raft.ServerID(opts.raftTCPAddress)
+	raftConfig.LocalID = raft.ServerID(opts.RaftTCPAddress)
 	raftConfig.Logger = logger
 	raftConfig.SnapshotInterval = 20 * time.Second
 	raftConfig.SnapshotThreshold = 2
@@ -56,7 +56,7 @@ func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
 		return nil, err
 	}
 
-	if err := os.MkdirAll(opts.dataDir, 0700); err != nil {
+	if err := os.MkdirAll(opts.DataDir, 0700); err != nil {
 		return nil, err
 	}
 
@@ -64,17 +64,17 @@ func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
 		ctx: ctx,
 		log: log.New(os.Stderr, "FSM: ", log.Ldate|log.Ltime),
 	}
-	snapshotStore, err := raft.NewFileSnapshotStore(opts.dataDir, 1, os.Stderr)
+	snapshotStore, err := raft.NewFileSnapshotStore(opts.DataDir, 1, os.Stderr)
 	if err != nil {
 		return nil, err
 	}
 
-	logStore, err := raftboltdb.NewBoltStore(filepath.Join(opts.dataDir, "raft-log.bolt"))
+	logStore, err := raftboltdb.NewBoltStore(filepath.Join(opts.DataDir, "raft-log.bolt"))
 	if err != nil {
 		return nil, err
 	}
 
-	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(opts.dataDir, "raft-stable.bolt"))
+	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(opts.DataDir, "raft-stable.bolt"))
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
 		return nil, err
 	}
 
-	if opts.bootstrap {
+	if opts.Bootstrap {
 		configuration := raft.Configuration{
 			Servers: []raft.Server{
 				{
@@ -101,7 +101,7 @@ func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
 
 // joinRaftCluster joins a node to raft cluster
 func JoinRaftCluster(opts *options) error {
-	url := fmt.Sprintf("http://%s/join?peerAddress=%s", opts.JoinAddress, opts.raftTCPAddress)
+	url := fmt.Sprintf("http://%s/join?node=%s", opts.JoinAddress, opts.RaftTCPAddress)
 
 	resp, err := http.Get(url)
 	if err != nil {

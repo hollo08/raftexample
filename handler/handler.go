@@ -43,7 +43,7 @@ func (h *Handler) Set(c *gin.Context) {
 		return
 	}
 
-	applyFuture := h.Ctx.RCC.Raft.Raft.Apply(eventBytes, 5*time.Second)
+	applyFuture := h.Ctx.RC.Raft.Raft.Apply(eventBytes, 5*time.Second)
 	if err := applyFuture.Error(); err != nil {
 		h.Log.Printf("raft.Apply failed:%v", err)
 		fmt.Fprint(c.Writer, "internal error\n")
@@ -58,7 +58,7 @@ func (h *Handler) Get(c *gin.Context) {
 		c.String(200, fmt.Sprintf("fail"))
 		return
 	}
-	ret := h.Ctx.RCC.Cm.Get(key)
+	ret := h.Ctx.RC.Cm.Get(key)
 	c.String(200, fmt.Sprintf("hello %s\n", ret))
 }
 
@@ -68,11 +68,11 @@ func (h *Handler) Join(c *gin.Context) {
 		c.String(200, fmt.Sprintf("fail"))
 		return
 	}
-	addPeerFuture := h.Ctx.RCC.Raft.Raft.AddVoter(raft.ServerID(node), raft.ServerAddress(node), 0, 0)
+	addPeerFuture := h.Ctx.RC.Raft.Raft.AddVoter(raft.ServerID(node), raft.ServerAddress(node), 0, 0)
 	if err := addPeerFuture.Error(); err != nil {
-		h.Log.Printf("Error joining peer to raft, peeraddress:%s, err:%v, code:%d", node, err, http.StatusInternalServerError)
+		h.Log.Printf("Error joining peer to raft, peerAddress:%s, err:%v, code:%d", node, err, http.StatusInternalServerError)
 		fmt.Fprint(c.Writer, "internal error\n")
 		return
 	}
-	c.String(200, fmt.Sprintf("hello %s\n", node))
+	c.String(200, "ok")
 }
