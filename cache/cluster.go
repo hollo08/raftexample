@@ -19,13 +19,13 @@ import (
 
 var logWriter io.Writer
 
-type raftNodeInfo struct {
+type RaftNodeInfo struct {
 	Raft           *raft.Raft
 	fsm            *FSM
 	LeaderNotifyCh chan bool
 }
 
-func newRaftTransport(opts *options) (*raft.NetworkTransport, error) {
+func NewRaftTransport(opts *options) (*raft.NetworkTransport, error) {
 	address, err := net.ResolveTCPAddr("tcp", opts.RaftTCPAddress)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func newRaftTransport(opts *options) (*raft.NetworkTransport, error) {
 	return transport, nil
 }
 
-func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
+func NewRaftNode(opts *options, ctx *RaftCachedContext) (*RaftNodeInfo, error) {
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   "raft: ",
 		Output: logWriter,
@@ -51,7 +51,7 @@ func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
 	leaderNotifyCh := make(chan bool, 1)
 	raftConfig.NotifyCh = leaderNotifyCh
 
-	transport, err := newRaftTransport(opts)
+	transport, err := NewRaftTransport(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func NewRaftNode(opts *options, ctx *RaftCachedContext) (*raftNodeInfo, error) {
 		raftNode.BootstrapCluster(configuration)
 	}
 
-	return &raftNodeInfo{Raft: raftNode, fsm: fsm, LeaderNotifyCh: leaderNotifyCh}, nil
+	return &RaftNodeInfo{Raft: raftNode, fsm: fsm, LeaderNotifyCh: leaderNotifyCh}, nil
 }
 
 // joinRaftCluster joins a node to raft cluster

@@ -11,7 +11,7 @@ type RaftCached struct {
 	Opts *options
 	Log  *log.Logger
 	Cm   *CacheManager
-	Raft *raftNodeInfo
+	Raft *RaftNodeInfo
 }
 
 type RaftCachedContext struct {
