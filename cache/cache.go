@@ -10,7 +10,7 @@ import (
 type RaftCached struct {
 	Opts *options
 	Log  *log.Logger
-	Cm   *CacheManager
+	Cm   *Manager
 	Raft *RaftNodeInfo
 }
 
@@ -18,25 +18,25 @@ type RaftCachedContext struct {
 	RC *RaftCached
 }
 
-type CacheManager struct {
+type Manager struct {
 	data map[string]string
 	sync.RWMutex
 }
 
-func NewCacheManager() *CacheManager {
-	cm := &CacheManager{}
+func NewCacheManager() *Manager {
+	cm := &Manager{}
 	cm.data = make(map[string]string)
 	return cm
 }
 
-func (c *CacheManager) Get(key string) string {
+func (c *Manager) Get(key string) string {
 	c.RLock()
 	ret := c.data[key]
 	c.RUnlock()
 	return ret
 }
 
-func (c *CacheManager) Set(key string, value string) error {
+func (c *Manager) Set(key string, value string) error {
 	c.Lock()
 	defer c.Unlock()
 	c.data[key] = value
@@ -44,7 +44,7 @@ func (c *CacheManager) Set(key string, value string) error {
 }
 
 // Marshal serializes cache data
-func (c *CacheManager) Marshal() ([]byte, error) {
+func (c *Manager) Marshal() ([]byte, error) {
 	c.RLock()
 	defer c.RUnlock()
 	dataBytes, err := json.Marshal(c.data)
@@ -52,7 +52,7 @@ func (c *CacheManager) Marshal() ([]byte, error) {
 }
 
 // UnMarshal deserializes cache data
-func (c *CacheManager) UnMarshal(serialized io.ReadCloser) error {
+func (c *Manager) UnMarshal(serialized io.ReadCloser) error {
 	var newData map[string]string
 	if err := json.NewDecoder(serialized).Decode(&newData); err != nil {
 		return err

@@ -34,7 +34,7 @@ func main() {
 		Ctx:         ctx,
 		Log:         logger,
 		Mux:         nil,
-		EnableWrite: handler.ENABLE_WRITE_FALSE,
+		EnableWrite: handler.EnableWriteFalse,
 	}
 	r := gin.Default()
 	r.GET("/set", h.Set)
@@ -52,10 +52,10 @@ func main() {
 		case leader := <-st.Raft.LeaderNotifyCh:
 			if leader {
 				st.Log.Println("become leader, enable write api")
-				h.EnableWrite = handler.ENABLE_WRITE_TRUE
+				h.EnableWrite = handler.EnableWriteTrue
 			} else {
 				st.Log.Println("become follower, close write api")
-				h.EnableWrite = handler.ENABLE_WRITE_FALSE
+				h.EnableWrite = handler.EnableWriteFalse
 			}
 		}
 	}

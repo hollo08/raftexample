@@ -5,7 +5,7 @@ import (
 )
 
 type snapshot struct {
-	cm *CacheManager
+	cm *Manager
 }
 
 // Persist saves the FSM snapshot out to the given sink.

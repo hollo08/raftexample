@@ -17,8 +17,8 @@ func NewOptions() *options {
 	opts := &options{}
 	var httpAddress = flag.String("http", "127.0.0.1:6000", "Http address")
 	var raftTCPAddress = flag.String("raft", "127.0.0.1:7000", "raft tcp address")
-	var node = flag.String("node", "g://raft/node1", "raft node name")
-	var bootstrap = flag.Bool("bootstrap", true, "start as raft cluster")
+	var node = flag.String("node", "c://raft/node1", "raft node name")
+	var bootstrap = flag.Bool("bootstrap", false, "start as raft cluster")
 	var joinAddress = flag.String("join", "", "join address for raft cluster")
 	flag.Parse()
 	opts.DataDir = *node

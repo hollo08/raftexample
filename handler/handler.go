@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	ENABLE_WRITE_TRUE  = int32(1)
-	ENABLE_WRITE_FALSE = int32(0)
+	EnableWriteTrue  = int32(1)
+	EnableWriteFalse = int32(0)
 )
 
 type Handler struct {
@@ -25,7 +25,7 @@ type Handler struct {
 }
 
 func (h *Handler) checkWritePermission() bool {
-	return atomic.LoadInt32(&h.EnableWrite) == ENABLE_WRITE_TRUE
+	return atomic.LoadInt32(&h.EnableWrite) == EnableWriteTrue
 }
 
 func (h *Handler) Set(c *gin.Context) {
